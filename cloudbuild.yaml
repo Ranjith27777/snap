@@ -64,8 +64,12 @@ steps:
       - '-c'
       - |
         echo "Running snapshot script for file: $_BATCH_FILE"
+        echo "Reading project file: /workspace/$_BATCH_FILE"
+        ls -l /workspace
         chmod +x ./snapshot_script.sh
-        ./snapshot_script.sh "$_BATCH_FILE"
+        ./snapshot_script.sh "/workspace/$_BATCH_FILE"
 options:
   logging: CLOUD_LOGGING_ONLY
+substitutions:
+  _BATCH_FILE: batch1_nonprod
 
