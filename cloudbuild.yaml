@@ -1,5 +1,5 @@
 steps:
-  # Step 1: Display context and list workspace files
+  # Step 0: List all files for clarity
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'list-files'
     entrypoint: bash
@@ -13,7 +13,23 @@ steps:
         ls -l /workspace
         echo "====================================================="
 
-  # Step 2: Run your snapshot script
+  # Step 1: Normalize project file (add newline if missing)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+    id: 'normalize-project-file'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        if [ -f "${_PROJECT_FILE}" ]; then
+          echo "Normalizing file: ${_PROJECT_FILE}"
+          # Add a newline if missing
+          echo "" >> "${_PROJECT_FILE}"
+        else
+          echo "❌ Error: Project file '${_PROJECT_FILE}' not found!"
+          exit 1
+        fi
+
+  # Step 2: Run the snapshot script
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'run-snapshot'
     entrypoint: bash
@@ -27,85 +43,6 @@ steps:
         ./snapshot_script.sh "${_PROJECT_FILE}"
 
 substitutions:
-  _PROJECT_FILE: "batch1_nonprod"   # Default value; can be overridden in trigger
+  _PROJECT_FILE: "batch1_nonprod"   # Default; can be overridden in trigger
 
 timeout: 7200s
-
-options:
-  logging: CLOUD_LOGGING_ONLY
-
-
-# steps:
-#   - name: 'gcr.io/cloud-builders/gcloud'
-#     entrypoint: 'bash'
-#     args: ['-c', 'chmod +x ./snapshot_script.sh && ./snapshot_script.sh']
-#     env: ['PROJECT_FILE=$_BATCH_FILE' ]
-# options:
-#   logging: CLOUD_LOGGING_ONLY
-
-
-# steps:
-#   - name: 'gcr.io/cloud-builders/gcloud'
-#     entrypoint: 'bash'
-#     args:
-#       - '-c'
-#       - |
-#         chmod +x ./snapshot_script.sh
-#         ./snapshot_script.sh "$_BATCH_FILE"
-# options:
-#   logging: CLOUD_LOGGING_ONLY
-
-# steps:
-#   - name: 'gcr.io/cloud-builders/gcloud'
-#     entrypoint: 'bash'
-#     args:
-#       - '-c'
-#       - |
-#         set -e
-#         chmod +x ./snapshot_script.sh
-#         echo "Running snapshot script for file: $_BATCH_FILE"
-#         ls -l "$_BATCH_FILE" || { echo "❌ File not found: $_BATCH_FILE"; exit 1; }
-#         cat "$_BATCH_FILE"
-#         ./snapshot_script.sh "$_BATCH_FILE"
-# options:
-#   logging: CLOUD_LOGGING_ONLY
-
-
-# steps:
-#   - name: 'gcr.io/cloud-builders/gcloud'
-#     entrypoint: 'bash'
-#     args:
-#       - '-c'
-#       - |
-#         set -e
-#         echo "🔎 Active account in Cloud Build:"
-#         gcloud auth list
-#         echo "🔎 Current project:"
-#         gcloud config get-value project
-#         chmod +x ./snapshot_script.sh
-#         echo "Running snapshot script for file: $_BATCH_FILE"
-#         ls -l "$_BATCH_FILE" || { echo "❌ File not found: $_BATCH_FILE"; exit 1; }
-#         cat "$_BATCH_FILE"
-#         ./snapshot_script.sh "$_BATCH_FILE"
-#         echo "Testing VM list for project: my-exp-470312"
-#         gcloud compute instances list --project="my-exp-470312"
-       
-# options:
-#   logging: CLOUD_LOGGING_ONLY
-
-
-# steps:
-#   - name: 'gcr.io/cloud-builders/gcloud'
-#     entrypoint: 'bash'
-#     args:
-#       - '-c'
-#       - |
-#         echo "Running snapshot script for file: $_BATCH_FILE"
-#         chmod +x ./snapshot_script.sh
-#         ./snapshot_script.sh /workspace/$_BATCH_FILE
-# options:
-#   logging: CLOUD_LOGGING_ONLY
-
-# substitutions:
-#   _BATCH_FILE: batch1_nonprod
-
