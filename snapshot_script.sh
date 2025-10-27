@@ -1,10 +1,14 @@
 #!/bin/bash
-echo "Reading project file: $PROJECT_FILE"
-cat "$PROJECT_FILE"
+
 
 PROJECT_FILE=$1
 MONTH=$(date +%B | tr '[:upper:]' '[:lower:]')
 YEAR=$(date +%Y)
+
+
+echo "Reading project file: $PROJECT_FILE"
+cat "$PROJECT_FILE"
+
 
 if [[ -z "$PROJECT_FILE" ]]; then
   echo "Usage: $0 <project-list-file>"
