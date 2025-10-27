@@ -48,7 +48,7 @@ while read -r PROJECT; do
       CLEAN_DISK=$(echo "$DISK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
       CLEAN_VM=$(echo "$VM" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
 
-      SNAPSHOT_NAME="${CLEAN_VM}-${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
+      SNAPSHOT_NAME="${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
       echo "  ===== > Creating snapshot: $SNAPSHOT_NAME"
 
       gcloud compute disks snapshot "$DISK" \

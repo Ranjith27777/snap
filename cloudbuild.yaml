@@ -1,0 +1,27 @@
+steps:
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+    id: 'create-snapshots'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        echo "====================================================="
+        echo "Starting snapshot creation for batch: ${_BATCH_FILE}"
+        echo "====================================================="
+
+        FILE_PATH="project_lists/${_BATCH_FILE}.txt"
+
+        if [[ ! -f "$FILE_PATH" ]]; then
+          echo "Error: Project list file '$FILE_PATH' not found!"
+          exit 1
+        fi
+
+        chmod +x snapshot_script.sh
+        ./snapshot_script.sh "$FILE_PATH"
+
+substitutions:
+  _BATCH_FILE: "batch1_prod"
+
+timeout: "3600s"
+options:
+  logging: CLOUD_LOGGING_ONLY
