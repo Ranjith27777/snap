@@ -9,11 +9,10 @@ steps:
         echo "Starting snapshot creation for batch: ${_BATCH_FILE}"
         echo "====================================================="
 
-        export BATCH_FILE="${_BATCH_FILE}"
-        FILE_PATH="project_lists/${BATCH_FILE}.txt"
+        FILE_PATH="project_lists/${_BATCH_FILE}.txt"
         echo "Using project list file: $FILE_PATH"
 
-        if [[ ! -f "$FILE_PATH" ]]; then
+        if [ ! -f "$FILE_PATH" ]; then
           echo "Error: Project list file '$FILE_PATH' not found!"
           exit 1
         fi
