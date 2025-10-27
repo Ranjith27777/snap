@@ -27,7 +27,7 @@ while read -r PROJECT; do
   echo "$VMS"
 
   if [[ -z "$VMS" ]]; then
-    echo "⚠️ No VMs found in $PROJECT"
+    echo "---------- No VMs found in $PROJECT ----------"
     continue
   fi
 
@@ -39,27 +39,27 @@ while read -r PROJECT; do
       --zone="$ZONE" \
       --format="value(disks[].deviceName)")
 
-    echo "      [DEBUG] Disks detected: $DISKS"
+    echo "******* Disks detected: $DISKS ********"
 
     if [[ -z "$DISKS" ]]; then
-      echo "⚠️ No disks found for VM $VM"
+      echo "----------- No disks found for VM $VM------------"
       continue
-    fi
-    
-    REGION=$(gcloud compute disks describe "$DISK" \
-      --project="$PROJECT" \
-      --zone="$ZONE" \
-      --format="value(region)")
-
-    if [[ -z "$REGION" ]]; then
-      REGION=$(echo "$ZONE" | sed 's/-[a-z]$//')   
-    else
-      REGION=$(basename "$REGION")                 
     fi
 
     IFS=';' read -ra DISK_ARRAY <<< "$DISKS"
     for DISK in "${DISK_ARRAY[@]}"; do
       CLEAN_DISK=$(echo "$DISK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
+      
+      REGION=$(gcloud compute disks describe "$DISK" \
+      --project="$PROJECT" \
+      --zone="$ZONE" \
+      --format="value(region)")
+
+      if [[ -z "$REGION" ]]; then
+        REGION=$(echo "$ZONE" | sed 's/-[a-z]$//')   
+      else
+        REGION=$(basename "$REGION")                 
+      fi
 
       SNAPSHOT_NAME="${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
       echo "  ===== > Creating snapshot: $SNAPSHOT_NAME"
@@ -69,10 +69,11 @@ while read -r PROJECT; do
         --zone="$ZONE" \
         --storage-location="$REGION" \
         --snapshot-names="$SNAPSHOT_NAME"
+        
     done
   done <<< "$VMS"
 done < "$PROJECT_FILE"
 
-echo "====================================================="
-echo "Snapshot process completed for all projects and zones."
-echo "====================================================="
+echo "==========================================="
+echo "Snapshot process completed for all projects"
+echo "==========================================="
