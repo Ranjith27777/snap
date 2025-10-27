@@ -1,6 +1,5 @@
-
 steps:
-  # Step 1: Add newline to project file (ensure it's detected in /workspace)
+  # Step 1: Verify project file and add newline
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'set-project-file'
     entrypoint: bash
@@ -8,21 +7,23 @@ steps:
       - -c
       - |
         FILE_PATH="/workspace/${_PROJECT_FILE}"
-        echo "Preparing file: ${FILE_PATH}"
+        echo "====================================================="
+        echo "Preparing project file: ${FILE_PATH}"
+        echo "====================================================="
 
         if [ -f "$FILE_PATH" ]; then
           echo "Adding newline to ${_PROJECT_FILE}"
           echo "" >> "$FILE_PATH"
-          echo "File after newline:"
+          echo "File after modification:"
           cat -n "$FILE_PATH"
         else
-          echo "*** Error: Project file '${_PROJECT_FILE}' not found at ${FILE_PATH}"
-          echo "Listing current directory for debug:"
+          echo "*** Error: Project file '${_PROJECT_FILE}' not found in /workspace"
+          echo "Listing contents of /workspace for debugging:"
           ls -l /workspace
           exit 1
         fi
 
-  # Step 2: Run snapshot script
+  # Step 2: Execute snapshot script
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'run-snapshot'
     entrypoint: bash
@@ -31,8 +32,10 @@ steps:
     args:
       - -c
       - |
+        echo "====================================================="
+        echo "Running snapshot script for file: ${_PROJECT_FILE}"
+        echo "====================================================="
         chmod +x /workspace/snapshot_script.sh
-        echo "Executing snapshot_script.sh with project file: ${_PROJECT_FILE}"
         cd /workspace
         ./snapshot_script.sh "${_PROJECT_FILE}"
 
@@ -40,6 +43,7 @@ timeout: 7200s
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
 
 
 
