@@ -1,42 +1,39 @@
 #!/bin/bash
 
-
 PROJECT_FILE=$1
 MONTH=$(date +%B | tr '[:upper:]' '[:lower:]')
 YEAR=$(date +%Y)
-
-
-echo "Reading project file: $PROJECT_FILE"
-cat "$PROJECT_FILE"
-
 
 if [[ -z "$PROJECT_FILE" ]]; then
   echo "Usage: $0 <project-list-file>"
   exit 1
 fi
 
+echo "Reading project file: $PROJECT_FILE"
+echo "-----------------------------------------------------"
+cat "$PROJECT_FILE"
+echo "-----------------------------------------------------"
+
 while read -r PROJECT; do
   [[ -z "$PROJECT" ]] && continue
 
   echo "****** Processing project ****** : $PROJECT"
 
-  ## VM List
   VMS=$(gcloud compute instances list \
     --project="$PROJECT" \
     --format="value(name,zone)")
 
-  echo "   [DEBUG] VMs found:"
+  echo "   [DEBUG] VMs found (if any):"
   echo "$VMS"
 
   if [[ -z "$VMS" ]]; then
-    echo "No VMs found in $PROJECT"
+    echo "⚠️ No VMs found in $PROJECT"
     continue
   fi
 
   while read -r VM ZONE; do
     echo "VM: $VM (zone: $ZONE)"
 
-    # Get attached disks
     DISKS=$(gcloud compute instances describe "$VM" \
       --project="$PROJECT" \
       --zone="$ZONE" \
@@ -45,7 +42,7 @@ while read -r PROJECT; do
     echo "      [DEBUG] Disks detected: $DISKS"
 
     if [[ -z "$DISKS" ]]; then
-      echo "No disks found for VM $VM"
+      echo "⚠️ No disks found for VM $VM"
       continue
     fi
 
