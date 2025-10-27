@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "Reading project file: $PROJECT_FILE"
+cat "$PROJECT_FILE"
 
 PROJECT_FILE=$1
 MONTH=$(date +%B | tr '[:upper:]' '[:lower:]')
