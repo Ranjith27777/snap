@@ -46,3 +46,6 @@ substitutions:
   _PROJECT_FILE: "batch1_nonprod"   # Default; can be overridden in trigger
 
 timeout: 7200s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
