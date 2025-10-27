@@ -45,18 +45,29 @@ while read -r PROJECT; do
       echo "⚠️ No disks found for VM $VM"
       continue
     fi
+    
+    REGION=$(gcloud compute disks describe "$DISK" \
+      --project="$PROJECT" \
+      --zone="$ZONE" \
+      --format="value(region)")
+
+    if [[ -z "$REGION" ]]; then
+      REGION=$(echo "$ZONE" | sed 's/-[a-z]$//')   
+    else
+      REGION=$(basename "$REGION")                 
+    fi
 
     IFS=';' read -ra DISK_ARRAY <<< "$DISKS"
     for DISK in "${DISK_ARRAY[@]}"; do
       CLEAN_DISK=$(echo "$DISK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
-      CLEAN_VM=$(echo "$VM" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
 
-      SNAPSHOT_NAME="${CLEAN_VM}-${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
+      SNAPSHOT_NAME="${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
       echo "  ===== > Creating snapshot: $SNAPSHOT_NAME"
 
       gcloud compute disks snapshot "$DISK" \
         --project="$PROJECT" \
         --zone="$ZONE" \
+        --storage-location="$REGION" \
         --snapshot-names="$SNAPSHOT_NAME"
     done
   done <<< "$VMS"

@@ -28,7 +28,7 @@ steps:
         ./snapshot_script.sh "${_PROJECT_FILE}"
 
 substitutions:
-  _PROJECT_FILE: "batch1_nonprod"   
+  _PROJECT_FILE: ""   
 
 timeout: 7200s
 
