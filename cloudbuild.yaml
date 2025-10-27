@@ -21,3 +21,6 @@ steps:
 
 substitutions:
   _BATCH_FILE: "batch1_prod"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
