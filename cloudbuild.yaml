@@ -7,13 +7,28 @@
 #   logging: CLOUD_LOGGING_ONLY
 
 
+# steps:
+#   - name: 'gcr.io/cloud-builders/gcloud'
+#     entrypoint: 'bash'
+#     args:
+#       - '-c'
+#       - |
+#         chmod +x ./snapshot_script.sh
+#         ./snapshot_script.sh "$_BATCH_FILE"
+# options:
+#   logging: CLOUD_LOGGING_ONLY
+
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
+        set -e
         chmod +x ./snapshot_script.sh
+        echo "Running snapshot script for file: $_BATCH_FILE"
+        ls -l "$_BATCH_FILE" || { echo "❌ File not found: $_BATCH_FILE"; exit 1; }
+        cat "$_BATCH_FILE"
         ./snapshot_script.sh "$_BATCH_FILE"
 options:
   logging: CLOUD_LOGGING_ONLY
