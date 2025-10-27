@@ -2,15 +2,14 @@ steps:
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'create-snapshots'
     entrypoint: bash
-    env:
-      - 'BATCH_FILE=${_BATCH_FILE}'
     args:
       - '-c'
       - |
         echo "====================================================="
-        echo "Starting snapshot creation for batch: ${BATCH_FILE}"
+        echo "Starting snapshot creation for batch: ${_BATCH_FILE}"
         echo "====================================================="
 
+        export BATCH_FILE="${_BATCH_FILE}"
         FILE_PATH="project_lists/${BATCH_FILE}.txt"
         echo "Using project list file: $FILE_PATH"
 
