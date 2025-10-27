@@ -1,35 +1,20 @@
 steps:
-  # Step 0: List all files for clarity
+  # Set new line
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
-    id: 'list-files'
-    entrypoint: bash
-    args:
-      - -c
-      - |
-        echo "====================================================="
-        echo "Running snapshot script for file: ${_PROJECT_FILE}"
-        echo "====================================================="
-        echo "Reading project file: /workspace/${_PROJECT_FILE}"
-        ls -l /workspace
-        echo "====================================================="
-
-  # Step 1: Normalize project file (add newline if missing)
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
-    id: 'normalize-project-file'
+    id: 'set-project-file'
     entrypoint: bash
     args:
       - -c
       - |
         if [ -f "${_PROJECT_FILE}" ]; then
-          echo "Normalizing file: ${_PROJECT_FILE}"
-          # Add a newline if missing
+          echo "Preparing file: ${_PROJECT_FILE}"
+          # new line
           echo "" >> "${_PROJECT_FILE}"
         else
-          echo "❌ Error: Project file '${_PROJECT_FILE}' not found!"
+          echo "*** Error: Project file '${_PROJECT_FILE}' not found!"
           exit 1
         fi
-
-  # Step 2: Run the snapshot script
+    # Run script
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'run-snapshot'
     entrypoint: bash
@@ -43,7 +28,7 @@ steps:
         ./snapshot_script.sh "${_PROJECT_FILE}"
 
 substitutions:
-  _PROJECT_FILE: "batch1_nonprod"   # Default; can be overridden in trigger
+  _PROJECT_FILE: "batch1_prod"   
 
 timeout: 7200s
 
