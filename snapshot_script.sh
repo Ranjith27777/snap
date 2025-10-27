@@ -19,7 +19,7 @@ while read -r PROJECT; do
     --project="$PROJECT" \
     --format="value(name,zone)")
 
-  echo "VMs found:"
+  echo "   [DEBUG] VMs found:"
   echo "$VMS"
 
   if [[ -z "$VMS" ]]; then
@@ -36,7 +36,7 @@ while read -r PROJECT; do
       --zone="$ZONE" \
       --format="value(disks[].deviceName)")
 
-    echo "Disks detected: $DISKS"
+    echo "      [DEBUG] Disks detected: $DISKS"
 
     if [[ -z "$DISKS" ]]; then
       echo "No disks found for VM $VM"
@@ -48,7 +48,7 @@ while read -r PROJECT; do
       CLEAN_DISK=$(echo "$DISK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
       CLEAN_VM=$(echo "$VM" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
 
-      SNAPSHOT_NAME="${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
+      SNAPSHOT_NAME="${CLEAN_VM}-${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
       echo "  ===== > Creating snapshot: $SNAPSHOT_NAME"
 
       gcloud compute disks snapshot "$DISK" \
