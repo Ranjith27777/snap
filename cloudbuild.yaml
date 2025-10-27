@@ -1,20 +1,28 @@
+
 steps:
-  # Set new line
+  # Step 1: Add newline to project file (ensure it's detected in /workspace)
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'set-project-file'
     entrypoint: bash
     args:
       - -c
       - |
-        if [ -f "${_PROJECT_FILE}" ]; then
-          echo "Preparing file: ${_PROJECT_FILE}"
-          # new line
-          echo "" >> "${_PROJECT_FILE}"
+        FILE_PATH="/workspace/${_PROJECT_FILE}"
+        echo "Preparing file: ${FILE_PATH}"
+
+        if [ -f "$FILE_PATH" ]; then
+          echo "Adding newline to ${_PROJECT_FILE}"
+          echo "" >> "$FILE_PATH"
+          echo "File after newline:"
+          cat -n "$FILE_PATH"
         else
-          echo "*** Error: Project file '${_PROJECT_FILE}' not found!"
+          echo "*** Error: Project file '${_PROJECT_FILE}' not found at ${FILE_PATH}"
+          echo "Listing current directory for debug:"
+          ls -l /workspace
           exit 1
         fi
-    # Run script
+
+  # Step 2: Run snapshot script
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
     id: 'run-snapshot'
     entrypoint: bash
@@ -23,14 +31,53 @@ steps:
     args:
       - -c
       - |
-        chmod +x snapshot_script.sh
+        chmod +x /workspace/snapshot_script.sh
         echo "Executing snapshot_script.sh with project file: ${_PROJECT_FILE}"
+        cd /workspace
         ./snapshot_script.sh "${_PROJECT_FILE}"
-
-substitutions:
-  _PROJECT_FILE: "batch1_prod"   
 
 timeout: 7200s
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
+
+
+
+
+# steps:
+#   # Set new line
+#   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+#     id: 'set-project-file'
+#     entrypoint: bash
+#     args:
+#       - -c
+#       - |
+#         if [ -f "${_PROJECT_FILE}" ]; then
+#           echo "Preparing file: ${_PROJECT_FILE}"
+#           # new line
+#           echo "" >> "${_PROJECT_FILE}"
+#         else
+#           echo "*** Error: Project file '${_PROJECT_FILE}' not found!"
+#           exit 1
+#         fi
+#     # Run script
+#   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+#     id: 'run-snapshot'
+#     entrypoint: bash
+#     env:
+#       - 'PROJECT_FILE=${_PROJECT_FILE}'
+#     args:
+#       - -c
+#       - |
+#         chmod +x snapshot_script.sh
+#         echo "Executing snapshot_script.sh with project file: ${_PROJECT_FILE}"
+#         ./snapshot_script.sh "${_PROJECT_FILE}"
+
+# substitutions:
+#   _PROJECT_FILE: "batch1_prod"   
+
+# timeout: 7200s
+
+# options:
+#   logging: CLOUD_LOGGING_ONLY
