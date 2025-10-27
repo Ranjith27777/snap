@@ -1,7 +1,19 @@
+# steps:
+#   - name: 'gcr.io/cloud-builders/gcloud'
+#     entrypoint: 'bash'
+#     args: ['-c', 'chmod +x ./snapshot_script.sh && ./snapshot_script.sh']
+#     env: ['PROJECT_FILE=$_BATCH_FILE' ]
+# options:
+#   logging: CLOUD_LOGGING_ONLY
+
+
 steps:
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
-    args: ['-c', 'chmod +x ./snapshot_script.sh && ./snapshot_script.sh']
-    env: ['PROJECT_FILE=$_BATCH_FILE' ]
+    args:
+      - '-c'
+      - |
+        chmod +x ./snapshot_script.sh
+        ./snapshot_script.sh "$_BATCH_FILE"
 options:
   logging: CLOUD_LOGGING_ONLY
