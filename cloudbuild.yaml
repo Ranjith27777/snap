@@ -1,3 +1,40 @@
+steps:
+  # Step 1: Display context and list workspace files
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+    id: 'list-files'
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        echo "====================================================="
+        echo "Running snapshot script for file: ${_PROJECT_FILE}"
+        echo "====================================================="
+        echo "Reading project file: /workspace/${_PROJECT_FILE}"
+        ls -l /workspace
+        echo "====================================================="
+
+  # Step 2: Run your snapshot script
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:latest'
+    id: 'run-snapshot'
+    entrypoint: bash
+    env:
+      - 'PROJECT_FILE=${_PROJECT_FILE}'
+    args:
+      - -c
+      - |
+        chmod +x snapshot_script.sh
+        echo "Executing snapshot_script.sh with project file: ${_PROJECT_FILE}"
+        ./snapshot_script.sh "${_PROJECT_FILE}"
+
+substitutions:
+  _PROJECT_FILE: "batch1_nonprod"   # Default value; can be overridden in trigger
+
+timeout: 7200s
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+
 # steps:
 #   - name: 'gcr.io/cloud-builders/gcloud'
 #     entrypoint: 'bash'
@@ -57,18 +94,18 @@
 #   logging: CLOUD_LOGGING_ONLY
 
 
-steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        echo "Running snapshot script for file: $_BATCH_FILE"
-        chmod +x ./snapshot_script.sh
-        ./snapshot_script.sh /workspace/$_BATCH_FILE
-options:
-  logging: CLOUD_LOGGING_ONLY
+# steps:
+#   - name: 'gcr.io/cloud-builders/gcloud'
+#     entrypoint: 'bash'
+#     args:
+#       - '-c'
+#       - |
+#         echo "Running snapshot script for file: $_BATCH_FILE"
+#         chmod +x ./snapshot_script.sh
+#         ./snapshot_script.sh /workspace/$_BATCH_FILE
+# options:
+#   logging: CLOUD_LOGGING_ONLY
 
-substitutions:
-  _BATCH_FILE: batch1_nonprod
+# substitutions:
+#   _BATCH_FILE: batch1_nonprod
 
