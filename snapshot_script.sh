@@ -34,10 +34,10 @@ while read -r PROJECT; do
   while read -r VM ZONE; do
     echo "VM: $VM (zone: $ZONE)"
 
-    DISKS=$(gcloud compute instances describe "$VM" \
+    DISKS=$(gcloud compute disks list \
       --project="$PROJECT" \
-      --zone="$ZONE" \
-      --format="value(disks[].deviceName)")
+      --zones="$ZONE" \
+      --format="value(name)")
 
     echo "******* Disks detected: $DISKS ********"
 
@@ -50,10 +50,10 @@ while read -r PROJECT; do
     for DISK in "${DISK_ARRAY[@]}"; do
       CLEAN_DISK=$(echo "$DISK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
       
-      REGION=$(gcloud compute disks describe "$DISK" \
-      --project="$PROJECT" \
-      --zone="$ZONE" \
-      --format="value(region)")
+      REGION=$(DISKS=$(gcloud compute disks list \
+        --project="$PROJECT" \
+        --zones="$ZONE" \
+        --format="value(location)"))
 
       if [[ -z "$REGION" ]]; then
         REGION=$(echo "$ZONE" | sed 's/-[a-z]$//')   
