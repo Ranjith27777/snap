@@ -34,18 +34,8 @@ while read -r PROJECT; do
   while read -r VM ZONE; do
     echo "VM: $VM (zone: $ZONE)"
 
-    DISKS=$(gcloud compute disks list \
-      --project="$PROJECT" \
-      --zones="$ZONE" \
-      --format="value(name)")
+    echo "******* Disks detected ********"
 
-    echo "******* Disks detected: $DISKS ********"
-
-    if [[ -z "$DISKS" ]]; then
-      echo "----------- No disks found for VM $VM------------"
-      continue
-    fi
-    
     gcloud compute disks list \
       --project="$PROJECT" \
       --zones="$ZONE" \
