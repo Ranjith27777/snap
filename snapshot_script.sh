@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROJECT_FILE=$1
-MONTH=$(date +%B | tr '[:upper:]' '[:lower:]')
+MONTH=$(date +%B | tr '[:upper:]' '[:lower:]' | cut -c1-3)
 YEAR=$(date +%Y)
 
 if [[ -z "$PROJECT_FILE" ]]; then
@@ -23,7 +23,7 @@ while read -r PROJECT; do
     --project="$PROJECT" \
     --format="value(name,zone)")
 
-  echo "   [DEBUG] VMs found (if any):"
+  echo "VMs found (if any):"
   echo "$VMS"
 
   if [[ -z "$VMS" ]]; then
@@ -40,25 +40,23 @@ while read -r PROJECT; do
       --format="value(name)")
 
     echo "******* Disks detected: $DISKS ********"
-
-    if [[ -z "$DISKS" ]]; then
-      echo "----------- No disks found for VM $VM------------"
-      continue
-    fi
-
-    IFS=';' read -ra DISK_ARRAY <<< "$DISKS"
-    for DISK in "${DISK_ARRAY[@]}"; do
+    echo "******* Disks detected ********"
+    gcloud compute disks list \
+      --project="$PROJECT" \
+      --zones="$ZONE" \
+      --format="value(name)" |
+    while read -r DISK; do
+      [[ -z "$DISK" ]] && continue
       CLEAN_DISK=$(echo "$DISK" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
-      
-      REGION=$(DISKS=$(gcloud compute disks list \
+
+      REGION=$(gcloud compute disks list \
         --project="$PROJECT" \
         --zones="$ZONE" \
-        --format="value(location)"))
+        --filter="name=$DISK" \
+        --format="value(location)")
 
       if [[ -z "$REGION" ]]; then
-        REGION=$(echo "$ZONE" | sed 's/-[a-z]$//')   
-      else
-        REGION=$(basename "$REGION")                 
+        REGION=$(echo "$ZONE" | sed 's/-[a-z]$//')
       fi
 
       SNAPSHOT_NAME="${CLEAN_DISK}-${MONTH}-${YEAR}-patch"
@@ -69,7 +67,6 @@ while read -r PROJECT; do
         --zone="$ZONE" \
         --storage-location="$REGION" \
         --snapshot-names="$SNAPSHOT_NAME"
-        
     done
   done <<< "$VMS"
 done < "$PROJECT_FILE"
@@ -77,3 +74,6 @@ done < "$PROJECT_FILE"
 echo "==========================================="
 echo "Snapshot process completed for all projects"
 echo "==========================================="
+
+
+
